@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>财富人格测试</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh;overflow-x:hidden}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(246,211,101,.15)}50%{box-shadow:0 0 40px rgba(246,211,101,.35)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+/* Cover */
+.cover-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;text-align:center;background:linear-gradient(180deg,#0a0a0f 0%,#1a1020 40%,#0a0a0f 100%)}
+.cover-icon{font-size:64px;margin-bottom:20px;animation:pulse 2s ease-in-out infinite}
+.cover-title{font-size:36px;font-weight:900;background:linear-gradient(135deg,#f6d365,#fda085,#f6d365);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite;margin-bottom:12px}
+.cover-sub{font-size:16px;color:#aaa;margin-bottom:40px;line-height:1.6}
+.cover-tags{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:50px}
+.cover-tag{padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:#ccc}
+.btn-start{padding:14px 48px;font-size:18px;font-weight:700;border:none;border-radius:30px;background:linear-gradient(135deg,#f6d365,#fda085);color:#1a1a2e;cursor:pointer;animation:slideUp .8s ease;transition:all .3s}
+.btn-start:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(246,211,101,.3)}
+/* Choice */
+.choice-page{display:none;min-height:100vh;padding:40px 20px;flex-direction:column;align-items:center;justify-content:center}
+.choice-page.active{display:flex}
+.choice-title{font-size:28px;font-weight:800;color:#f6d365;margin-bottom:8px;text-align:center}
+.choice-sub{font-size:15px;color:#999;margin-bottom:40px;text-align:center}
+.choice-cards{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;max-width:700px;width:100%}
+.choice-card{flex:1;min-width:260px;max-width:320px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:30px 24px;text-align:center;cursor:pointer;transition:all .3s}
+.choice-card:hover{transform:translateY(-4px);border-color:rgba(246,211,101,.4);box-shadow:0 12px 40px rgba(246,211,101,.1)}
+.choice-card.light:hover{border-color:rgba(129,199,132,.4);box-shadow:0 12px 40px rgba(129,199,132,.1)}
+.choice-card .card-icon{font-size:40px;margin-bottom:12px}
+.choice-card .card-name{font-size:20px;font-weight:800;margin-bottom:8px;color:#f6d365}
+.choice-card.light .card-name{color:#81c784}
+.choice-card .card-info{font-size:14px;color:#aaa;line-height:1.6;margin-bottom:8px}
+.choice-card .card-tag{display:inline-block;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:rgba(246,211,101,.1);color:#f6d365}
+.choice-card.light .card-tag{background:rgba(129,199,132,.1);color:#81c784}
+/* Question */
+.q-page{display:none;min-height:100vh;padding:24px 16px 80px}
+.q-page.active{display:block}
+.q-header{padding:12px 0;margin-bottom:16px}
+.q-progress{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.q-progress-fill{height:100%;background:linear-gradient(90deg,#f6d365,#fda085);border-radius:2px;transition:width .3s}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.q-num{font-size:14px;color:#f6d365;font-weight:700}
+.q-count{font-size:12px;color:#888}
+.q-text{font-size:20px;font-weight:700;line-height:1.6;margin-bottom:24px;color:#f0f0f0;animation:fadeIn .4s}
+.opt-list{display:flex;flex-direction:column;gap:10px;max-width:600px;margin:0 auto}
+.opt-item{padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:12px;animation:fadeIn .5s}
+.opt-item:hover{border-color:rgba(246,211,101,.3);background:rgba(246,211,101,.05)}
+.opt-item.selected{border-color:#f6d365;background:rgba(246,211,101,.1)}
+.opt-label{font-size:14px;font-weight:800;color:#f6d365;min-width:20px;line-height:1.5}
+.opt-text{font-size:15px;color:#ccc;line-height:1.5}
+.q-nav{display:flex;justify-content:space-between;margin-top:30px;max-width:600px;margin-left:auto;margin-right:auto;gap:12px}
+.btn-nav{padding:12px 28px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-prev{background:rgba(255,255,255,.08);color:#ccc;border:1px solid rgba(255,255,255,.15)}
+.btn-prev:hover{background:rgba(255,255,255,.12)}
+.btn-next{background:linear-gradient(135deg,#f6d365,#fda085);color:#1a1a2e}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(246,211,101,.25)}
+.btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+/* Result */
+.result-page{display:none;min-height:100vh;padding:30px 16px 60px;max-width:680px;margin:0 auto}
+.result-page.active{display:block}
+.animate-in{animation:slideUp .6s ease}
+/* Panel 1: 结果类型 */
+.result-header{text-align:center;margin-bottom:28px}
+.result-label{text-align:center;font-size:13px;color:#888;margin-bottom:6px;letter-spacing:4px;text-transform:uppercase}
+.result-type-name{text-align:center;font-size:40px;font-weight:900;margin-bottom:6px}
+.result-type-tagline{text-align:center;font-size:15px;color:#999;line-height:1.5}
+.result-score-ring{width:110px;height:110px;border-radius:50%;border:3px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 24px;animation:pulse 2s ease-in-out infinite}
+.score-num{font-size:36px;font-weight:900;line-height:1}
+.score-pct{font-size:12px;color:#888;margin-top:2px}
+/* Result panels */
+.result-panel{margin-bottom:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;animation:fadeIn .5s}
+.result-panel.highlight{border-color:rgba(246,211,101,.2);box-shadow:0 0 30px rgba(246,211,101,.06)}
+.panel-number{display:inline-block;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:800;margin-right:8px;background:rgba(246,211,101,.15);color:#f6d365}
+.panel-title{font-size:17px;font-weight:700;color:#f6d365;margin-bottom:12px;display:flex;align-items:center}
+.panel-content{font-size:14px;color:#ccc;line-height:1.8}
+.panel-list{list-style:none;padding:0}
+.panel-list li{padding:6px 0 6px 18px;position:relative;line-height:1.7}
+.panel-list li::before{content:'';position:absolute;left:0;top:12px;width:6px;height:6px;border-radius:50%}
+.panel-list.good li::before{background:#81c784}
+.panel-list.bad li::before{background:#ff6b6b}
+.panel-list.advice li::before{background:#f6d365}
+/* Wealth dims */
+.dims-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.dim-item{background:rgba(255,255,255,.03);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.dim-label{font-size:12px;color:#999}
+.dim-bar{flex:1;height:5px;border-radius:3px;margin:0 10px;overflow:hidden;background:rgba(255,255,255,.06)}
+.dim-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.dim-pct{font-size:12px;font-weight:700;min-width:32px;text-align:right}
+/* Golden quote box */
+.quote-box{text-align:center;padding:24px 20px;background:linear-gradient(135deg,rgba(246,211,101,.08),rgba(253,160,133,.08));border:1px solid rgba(246,211,101,.2);border-radius:14px;margin-bottom:20px}
+.quote-icon{font-size:28px;margin-bottom:8px}
+.quote-text{font-size:16px;font-weight:700;line-height:1.8;color:#f0f0f0}
+.btn-retry{display:block;margin:30px auto 0;padding:12px 36px;border-radius:24px;font-size:15px;font-weight:600;background:rgba(255,255,255,.08);color:#ccc;border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:all .2s}
+.btn-retry:hover{background:rgba(255,255,255,.12)}
+</style>
+</head>
+<body>
+
+<div class="cover-page" id="coverPage">
+  <div class="cover-icon">💰</div>
+  <div class="cover-title">财富人格测试</div>
+  <div class="cover-sub">6种财富人格，你属于哪一种？</div>
+  <div class="cover-tags">
+    <span class="cover-tag">超级个体者</span>
+    <span class="cover-tag">大厂的牛马</span>
+    <span class="cover-tag">成长打工人</span>
+    <span class="cover-tag">天选老板命</span>
+    <span class="cover-tag">技术型选手</span>
+    <span class="cover-tag">机会猎手</span>
+  </div>
+  <button class="btn-start" onclick="showChoice()">开始测试</button>
+</div>
+
+<div class="choice-page" id="choicePage">
+  <div class="choice-title">选择你的测试版本</div>
+  <div class="choice-sub">轻量快速 or 深度完整，由你决定</div>
+  <div class="choice-cards">
+    <div class="choice-card light" onclick="startTest('light')">
+      <div class="card-icon">⚡</div>
+      <div class="card-name">轻交付版</div>
+      <div class="card-info">只需回答 5 道精选核心题<br>快速了解你的财富人格</div>
+      <span class="card-tag">约 1 分钟</span>
+    </div>
+    <div class="choice-card" onclick="startTest('full')">
+      <div class="card-icon">🔍</div>
+      <div class="card-name">结果交付版</div>
+      <div class="card-info">完整回答 20 道深度测试题<br>精准描绘你的财富画像</div>
+      <span class="card-tag">约 4 分钟</span>
+    </div>
+  </div>
+</div>
+
+<div class="q-page" id="qPage">
+  <div class="q-header">
+    <div class="q-meta"><span class="q-num" id="qNum"></span><span class="q-count" id="qMode"></span></div>
+    <div class="q-progress"><div class="q-progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="q-text" id="qText"></div>
+  <div class="opt-list" id="optList"></div>
+  <div class="q-nav">
+    <button class="btn-nav btn-prev" id="btnPrev" onclick="prevQ()" style="visibility:hidden">上一题</button>
+    <button class="btn-nav btn-next" id="btnNext" onclick="nextQ()">下一题</button>
+  </div>
+</div>
+
+<div class="result-page" id="resultPage">
+  <div class="animate-in" id="resultContent"></div>
+  <button class="btn-retry" onclick="goHome()">重新测试</button>
+</div>
+
+<script>
+const L = 'ABCDEF'.split('');
+
+/* ===== 6种财富人格完整定义 ===== */
+const TYPES = [
+{
+  id:1, name:'超级个体者', color:'#ff6b6b',
+  tagline:'不靠平台，自己就是品牌',
+  personality:'独立思考，极少随大流。对"打工"有天然的排斥感，相信自己的能力比任何公司都值钱。有强烈的表达欲和个人见解，不愿意被体制束缚。做事节奏自成一派，你给他规则，他先问你为什么。边界感极强，喜欢单枪匹马解决问题，认为依赖别人就是给自己留隐患。内心深处有一种"我不需要任何人"的骄傲，但也因此常常感到孤独。',
+  strengths:[
+    'IP打造能力极强：你天生知道怎么让人记住你，个人品牌是你的核武器',
+    '内容杠杆高：一条内容可以触达数千数万人，投入产出比远超打工',
+    '学习速度快：独立作战练就了快速掌握新技能的本事，什么都能自己上手',
+    '抗风险意识强：不把鸡蛋放在别人篮子里，对"被裁"有天然的免疫力'
+  ],
+  weaknesses:[
+    '过于自我，不愿妥协：看不上"迎合市场"的事，容易跟商业机会擦肩而过',
+    '单打独斗天花板低：一个人能做的事终究有限，不愿借力是最大的天花板',
+    '容易忽视平台红利：看不起大厂的资源，嫌规则太多，但大厂确实有放大效应',
+    '团队协作能力弱：觉得别人做得不如自己，什么事都想亲力亲为，最终累死自己'
+  ],
+  bestWay:'你的赚钱基因是"内容×影响力的幂次放大"。最适合的方式是打造一个以你为中心的内容品牌：选定一个垂直领域，持续输出高价值内容，建立你的个人IP护城河。然后通过知识付费、品牌合作、IP授权等方式把影响力变现。建议先从抖音/小红书/视频号中选一个主力平台深耕，做内容时不要太"端着"，学会用大众听得懂的语言表达你的专业。当你有了一定粉丝基础后，可以考虑做你自己的付费社群或线上课程——这些是边际成本极低但收益极高的产品形态。',
+  avoidWay:[
+    '❌ 传统打工做一辈子：你会被KPI和层级折磨到怀疑人生',
+    '❌ 纯执行型岗位：老板让你做A你不能做B，这种工作会消耗你的创造力',
+    '❌ 需要频繁妥协的乙方/代理：你的骄傲不会允许你长期做"跪着赚钱"的事',
+    '❌ 没有话语权的小透明岗位：你会被忽视得浑身难受'
+  ],
+  actionPlan:[
+    '第一步：选1个内容赛道，专注输出3个月，不追求完美，先追求量和频率',
+    '第二步：建立你的产品体系——免费内容引流→低价产品筛选→高价服务变现',
+    '第三步：找一个互补型合伙人来分担你不擅长的部分（运营、商务、执行）',
+    '第四步：不要试图一个人做所有事，把"一个人是一支队伍"升级为"一个人是一支军队的统帅"'
+  ],
+  quote:'一个人就是一支队伍，但一支真正的队伍，能让你走得更远。'
+},
+{
+  id:2, name:'大厂的牛马', color:'#4fc3f7',
+  tagline:'稳定积累，安全感第一',
+  personality:'踏实稳重是你的底色。你不喜欢冒险，也不羡慕那些"一夜暴富"的故事——你更相信时间的力量和复利的作用。对规则有天生的敬畏感，进了体系就能快速适应并存活下来。你的安全感建立在存款数字和稳定的工资流水之上，当银行卡余额减少时你会焦虑，当月底你收到工资到账短信时，你会觉得一切都井然有序。你对风险极其敏感，风险对你来说不是"可能赚更多"，而是"可能失去现有的一切"。',
+  strengths:[
+    '执行力极其靠谱：安排的事你一定会做完，质量稳定，极少翻车',
+    '复利思维好：你天然懂"积少成多"的道理，理财、技能、人脉都在慢慢积累',
+    '大厂生存能力一流：你懂得如何在复杂组织中保护自己、获取资源、稳步上升',
+    '心态稳定：市场涨跌你不慌，风口来了你不追，这种冷静在投资中其实是稀缺品'
+  ],
+  weaknesses:[
+    '过度求稳导致机会成本巨大：那些你因为"不安全"而放弃的机会，十年后回头看可能是最大的遗憾',
+    '天花板明显：你的财富增长基本取决于公司晋升通道和工资涨幅，线性增长很难跑赢通胀',
+    '害怕改变：一份不喜欢的工作你也能忍3年，因为"换工作有风险"',
+    '投资过于保守：存款吃利息跑不过通胀，你在用"安全"的名义慢慢亏钱'
+  ],
+  bestWay:'你最适合的赚钱方式是"主业做压舱石 + 副业做增速器"的双轨模式。主业保住你的安全底线——不要裸辞，利用大厂的平台资源和信息差来武装自己。副业从你的专业技能延伸出来，哪怕一个月只多赚两三千，也是0到1的突破。在投资端，不要把全部钱存定期——学会做资产配置：50%稳健理财 + 30%指数基金定投 + 15%中风险资产 + 5%高风险探索。你不需要"搏"，你需要的是稍微打开一点点风险敞口，让钱开始替你工作。',
+  avoidWay:[
+    '❌ 裸辞去创业：你的安全感一旦被抽走会全面崩盘，创业还没开始心态就先垮了',
+    '❌ 高杠杆投资或炒币：杠杆会放大你的焦虑，一次爆仓可能影响你整个财务规划',
+    '❌ 完全依赖风口型项目：风口来得快去得也快，你没那个快速撤离的心理素质',
+    '❌ 把全部积蓄投到一个"朋友说很稳"的项目里：对你来说，分散才是安全感'
+  ],
+  actionPlan:[
+    '第一步：算清楚你的每月固定支出和"安全线"金额，把这笔钱单独存好不动',
+    '第二步：从你的专业技能延伸出一个副业方向，先试3个月，不求赚钱只求验证',
+    '第三步：学一项你完全不懂的投资知识（比如指数基金定投），用5%的资金练手',
+    '第四步：每年至少做一件让你"有一点点不安但可控"的事——让自己习惯适度的不确定性'
+  ],
+  quote:'稳稳当当是基本功，但偶尔跳出舒适圈，才能看到更大的世界。安全感和成长，从来不是二选一。'
+},
+{
+  id:3, name:'成长打工人', color:'#ffd54f',
+  tagline:'打工是为了不再打工',
+  personality:'你是一个永远在"进化"的人。对"停滞"有生理性的厌恶，如果连续三个月感觉不到成长，你会开始焦虑甚至抑郁。你的求知欲极强——买书、报课、加社群、约大佬吃饭，这些都是你的日常操作。你对"打工"有清醒的认知：打工不是归宿，而是跳板。你把自己当成一家"一个人的投资公司"，每一份工作都是一笔投资，要看ROI——学到了什么、接触了谁、提升了什么能力。你相信明天一定会比今天好，因为你在持续进化。但你的弱点也很明显：学得太多，做得太少。',
+  strengths:[
+    '成长速度惊人：同样两年，你的能力增值可能是同龄人的3倍',
+    '认知变现能力强：你的见识和判断力本身就是钱——能看到别人看不到的机会',
+    '人脉质量高：你善于结交比自己厉害的人，圈子就是你的隐藏资产',
+    '跨界迁移能力好：A领域学到的思维能快速迁移到B领域，举一反三是你的本能'
+  ],
+  weaknesses:[
+    '"学习成瘾"综合征：买了一堆课没看完，收藏夹里躺了几百篇文章，知识囤积但转化率极低',
+    '浅尝辄止：每个领域都想了解，但很少有哪个领域真正扎下去做到了专家级别',
+    '行动力跟不上认知：你看得很远想得很清楚，但真正落地的动作太少太慢',
+    '频繁跳槽或切换方向：每次都以为是"战略性转移"，但回头看可能是在原地画圈'
+  ],
+  bestWay:'你的赚钱密码是"认知差×执行力"。你最大的优势是看得远、看得透，最大的问题是做得少。最适合你的方式是找到一个你真正认可且愿意深耕的方向，把"学"的动作转化为"做"的动作。具体地说：选择一门高价值技能（比如运营、销售、编程、咨询中的一项），用1-2年时间做到行业前20%，然后用你的技能溢价去跳槽或接单——你的工资会跳涨，你的时薪会翻倍。当你的技能到达一定高度后，转为知识输出者——做课程、做咨询、做社群，把认知变现。',
+  avoidWay:[
+    '❌ 纯体力型或重复性的工作：你会被无聊感吞噬，三个月就想跑',
+    '❌ 没有成长空间的"温水煮青蛙"岗位：你对"稳定"的定义不是工资稳定，是能力稳定增长',
+    '❌ 同时追3个以上方向：你的精力会被稀释到每个方向都做不深',
+    '❌ 纯理论学习而不落地：再多证书不如一个真正跑通的项目'
+  ],
+  actionPlan:[
+    '第一步：从你目前关注的N个方向中砍掉所有，只留1个——用"如果只能学一样"的标准来选',
+    '第二步：每学一个新知识点，当天就用它做一件事——发一条朋友圈、写一段总结、做一个小项目',
+    '第三步：找到这个领域里3个实操派（不是理论派），观察他们是怎么把知识变成钱的',
+    '第四步：设定一个6个月的"深耕期"，不再学新方向，只在当前方向上往下挖'
+  ],
+  quote:'今天打工是为了明天不打工，但别忘了——明天是从今天开始的。学以致用，才是成长的全部意义。'
+},
+{
+  id:4, name:'天选老板命', color:'#ce93d8',
+  tagline:'搭局子、带队伍、分蛋糕',
+  personality:'你天生有一种"看全局"的能力。别人看到的是任务，你看到的是"这件事谁来做最合适"；别人看到的是问题，你看到的是"这个问题需要哪几个人来解决"。你对人极其敏感——谁能干什么、谁不能干什么、谁跟谁能合作、谁跟谁要分开，你心里有一本账。你骨子里不愿意被人管，你天生想管事。钱对你来说不只是花销，更是"做局的本钱"——小钱做小局，大钱做大局。你懂得分的智慧：钱分得越多，愿意跟着你干的人越多。',
+  strengths:[
+    '资源整合天赋：你能把看起来不相关的人和资源拼在一起，产生化学反应',
+    '团队杠杆能力：用别人的时间、能力和资源去放大你的想法，你负责搭台别人负责唱戏',
+    '商业模式敏感度：你天然懂"这个生意怎么赚钱"，对盈利逻辑有直觉',
+    '分利智慧：你懂得"让别人赚到钱，你才能赚到更多的钱"这个最朴素的商业真理'
+  ],
+  weaknesses:[
+    '过度依赖团队：自己动手能力越来越弱，万一核心成员离开你会很被动',
+    '失去一线手感：离业务越来越远，对市场和用户的感知会钝化',
+    '用人失误的代价很大：看错一个人可能拖垮一个项目甚至一个团队',
+    '"搭局上瘾"综合征：局越搭越多，但每个局都不够精细，最终可能哪个都没做成'
+  ],
+  bestWay:'你的赚钱武器是"组织力×杠杆效应"。最适合你的方式是从"做项目"升级到"做平台"——不要自己一个人干活，而是搭建一个让更多人帮你赚钱的系统。起步阶段，你可以用"项目制"的方法验证商业模式：找一个轻量级的项目，拉2-3个互补的人一起做，跑通从产品到交易的完整闭环。验证成功后，复制这个模式，把它变成一个可持续运转的业务系统。做代理、做渠道、做平台——凡是能借力的模式都适合你。',
+  avoidWay:[
+    '❌ 单打独斗的自由职业：你的核心武器是团队杠杆，一个人干活会浪费你的天赋',
+    '❌ 纯技术型岗位：你待不住的，你的本能会让你天天想"这事应该找人来做"',
+    '❌ 没有放权空间的螺丝钉岗位：你需要决策权和组织权，纯执行会让你窒息',
+    '❌ 同时搭太多局导致分心：一年最多主攻1-2个方向，多了就是自己坑自己'
+  ],
+  actionPlan:[
+    '第一步：先验证最小闭环——不要一上来就组大团队，用2-3个人跑通一个最小的赚钱模型',
+    '第二步：把"选人"当成最重要的技能来修炼——花50%的精力在找对的人上',
+    '第三步：建立你的"分钱规则"——怎么分钱、怎么分权，白纸黑字写清楚',
+    '第四步：保持你自己的核心能力不退化，至少有一个领域你比团队里任何人都懂'
+  ],
+  quote:'真正的老板不是赚钱最多的人，而是能让更多人愿意跟着他赚钱的人。搭局之前先搭人，分钱之前先分心。'
+},
+{
+  id:5, name:'技术型选手', color:'#81c784',
+  tagline:'护城河就是不可替代',
+  personality:'你对"技术"有宗教般的信仰。在你眼里，技术不是手段而是目的——把一件事做到极致，做到别人做不到的水平，这本身就值得追求。你信奉"手艺吃饭"，相信只要你的技术足够硬，走到哪里都不怕。你的安全感和自信心都建立在技术能力上，当你的技术水平在涨，你就觉得踏实；当你的技术被后浪追赶，你就开始焦虑。你不屑于搞关系、混圈子，你觉得那都是虚的——技术才是最硬的通货。但有时你也困惑：为什么技术不如我的人，赚得比我多？',
+  strengths:[
+    '不可替代性极强：你的技术护城河是你最大的财富，越难被替代价值越高',
+    '议价能力高：真正的高手永远是稀缺品，你不愁找不到愿意付高价的人',
+    '越老越值钱：和吃青春饭不同，真正的技术积淀是"时间的朋友"',
+    '品质洁癖：你对自己产出的质量有近乎偏执的要求，这种口碑会帮你积累长期客户'
+  ],
+  weaknesses:[
+    '忽略市场和商业变现：技术再好但没人知道、没人买单，就只是自娱自乐',
+    '不善包装和营销自己：你总觉得"技术本身就是最好的名片"，但现实是懂包装的人拿走了更多溢价',
+    '完美主义拖延：产品永远在打磨中无法发布，因为你总觉得还能更好',
+    '变现路径太窄：只会卖时间（接单/打工），不会卖产品（把技术变成可复制的产品）'
+  ],
+  bestWay:'你的赚钱核心是"技术壁垒×产品化"。纯卖技术（接外包、做项目）是线性增长——你一小时只能卖一次。你应该把技术变成产品：SaaS工具、技术课程、开源项目+商业版、技术咨询标准化套餐——这些都是"做一次卖多次"的模式。建议你在主业之外，开发一个属于自己的技术产品（哪怕是一个小工具、一个插件），放到市场上检验。同时，花20%的精力学习商业和营销——不是让你变成一个销售，而是让你懂得怎么给技术定一个配得上的价格。',
+  avoidWay:[
+    '❌ 纯销售型或社交型工作：你会觉得不务正业，内心长期处于撕裂状态',
+    '❌ 重运营轻技术的业务：你会觉得"这些事谁都能做"然后丧失动力',
+    '❌ 技术含量低的"码农"流水线工作：多做一年就贬值一年，你的护城河在枯竭',
+    '❌ 完全闭门造车不做市场验证：做出来的东西没人用，是最伤技术型选手的事'
+  ],
+  actionPlan:[
+    '第一步：盘点你的技术栈，找出"你最擅长且市场愿意付费"的那一项作为核心',
+    '第二步：用2周时间做一个小产品（工具、插件、课程都可以），推到市场上去看反馈',
+    '第三步：学习定价——不是按"花了多少时间"定价，而是按"解决了什么问题、值多少钱"定价',
+    '第四步：找到一个懂商业的合伙人或朋友，让他帮你解决你不擅长的市场、运营和销售'
+  ],
+  quote:'技术是你的护城河，但商业思维才是把护城河变现的钥匙。最好的技术，是能解决真实问题并且有人愿意为之付费的技术。'
+},
+{
+  id:6, name:'机会猎手', color:'#ff8a65',
+  tagline:'风来了上，风走了撤',
+  personality:'你是天生为"变化"而活的人。你不相信"稳定"——稳定意味着停滞，停滞意味着死亡。你对信息极其敏感，能从一条新闻、一篇帖子、一次聊天中嗅到机会的味道。你有一流的行动力：别人还在论证可行性，你已经进场了。你不执着于任何一个赛道——赛道是用来切换的，不是用来死守的。当你看到一个赛道人越来越多、钱越来越难赚时，你不会恋战，转身就走。你的人生信条是"错过比亏了更难受"，所以你宁可追错也要追，宁可亏在行动上也不想亏在犹豫上。',
+  strengths:[
+    '趋势嗅觉极其敏锐：别人看到的是风，你看到的是风的来向、强度和持续时间',
+    '行动力一流：从发现机会到执行的时间极短，这点碾压了90%的人',
+    '多赛道并行能力：你能同时跑好几个方向，每个方向都能快速产出',
+    '止损果断：错了就认，不像大多数人那样在一个错误的赛道上死扛'
+  ],
+  weaknesses:[
+    '浅尝辄止：每个赛道都赚到过钱，但没有任何一个赛道深耕到让你真正财富自由',
+    '长期复利差：快进快出虽然爽，但真正的财富积累需要时间和深耕',
+    '容易追高被套：每次都是风口来了才冲进去，进场时可能已经在半山腰',
+    '缺乏积累：人脉、技能、品牌都随着赛道切换而清零，每次都要重新开始'
+  ],
+  bestWay:'你的赚钱模式是"风口嗅觉×快进快出"的猎手打法。最适合你的是做一个"多赛道信息商"或"风口型小项目快速套利者"。具体操作：保持对3-5个赛道的日常信息监控，当某个赛道出现明显风口信号时，快速用最小成本切入（比如先投5000块试水，而不是一把梭哈）。目标不是在这个赛道做到top1，而是在这个赛道的红利期吃到一口就走。但你必须有一个"长期根据地"——拿出你30%的时间和资金，在一个真正值得深耕的赛道上持续积累，不为快钱，为的是给你的猎手生涯上一份"保险"。',
+  avoidWay:[
+    '❌ 需要长期积累才能见效的慢赛道：你对"3年才能回本"的事天然没耐心',
+    '❌ 固定死工资无增长的工作：你会因为"看不到风"而抑郁',
+    '❌ 重资产赛道（实体店、工厂等）：进场慢退出更慢，一旦接了你的灵活性就没了',
+    '❌ 所有钱都追风口、没有任何长期资产：风口停了，你也得有个降落伞'
+  ],
+  actionPlan:[
+    '第一步：建立你的"信息雷达系统"——关注10个行业/赛道的信息源，每天花30分钟扫读',
+    '第二步：设定你的"猎手规则"——每个风口最多投多少、止损线在哪、什么信号就撤',
+    '第三步：用猎手模式赚到的钱，拿30%投到你的"根据地"（一个你真正看好的长期赛道）',
+    '第四步：每追完一个风口，写一篇复盘——这个风口我为什么判断对了/错了，下次怎么改进'
+  ],
+  quote:'风口上的猪飞得高，但长出翅膀的猪才能一直飞。猎手模式是你的起跳板，但最终你需要一个能让你稳稳落地的根据地。'
+}
+];
+
+// ===== LIGHT QUESTIONS (5) =====
+const QL = [
+{q:'你拿到一笔10万的意外收入，第一反应是？',o:[
+  {t:1,s:'拿去投资自己的品牌和内容，扩大影响力'},
+  {t:2,s:'先存起来，等房贷扣完再看看'},
+  {t:3,s:'报个高阶课程或者进个好圈子，钱花在成长上'},
+  {t:4,s:'找几个靠谱的人一起搞个小项目'},
+  {t:5,s:'买台更好的设备，提升自己的技术产出'},
+  {t:6,s:'看看最近有什么风口，这笔钱刚好可以入场'}
+]},
+{q:'做一个重要决定前，你的习惯是？',o:[
+  {t:1,s:'看这个决定能否强化我的个人IP'},
+  {t:2,s:'查资料算概率，确保安全系数够高'},
+  {t:3,s:'问三个比我厉害的人，听听他们的经验'},
+  {t:4,s:'算一下投入产出比，人力的ROI够不够'},
+  {t:5,s:'看技术可行性，能不能用我的手艺搞定'},
+  {t:6,s:'看时间窗口——现在不上，晚一周就可能错过'}
+]},
+{q:'有人想跟你合伙做项目，你的判断标准是？',o:[
+  {t:1,s:'他的资源能不能帮我放大个人品牌'},
+  {t:2,s:'他靠谱吗？会不会把我也拖下水'},
+  {t:3,s:'跟他合作我能学到什么新东西'},
+  {t:4,s:'他能补我什么短板？我搭局他干活'},
+  {t:5,s:'他的技术方向和我互补吗'},
+  {t:6,s:'他是不是也看到了这个风口？共识很重要'}
+]},
+{q:'你的资产配置偏好是？',o:[
+  {t:1,s:'大部分投入个人品牌和内容生产'},
+  {t:2,s:'大部分存银行或买稳健理财'},
+  {t:3,s:'大部分投资自己的学习和人脉'},
+  {t:4,s:'大部分投入团队和项目运营'},
+  {t:5,s:'大部分投入设备、工具、技术升级'},
+  {t:6,s:'大部分留作风口启动资金，随时能动'}
+]},
+{q:'10年后你想成为什么样的人？',o:[
+  {t:1,s:'行业内有影响力的个人品牌/IP'},
+  {t:2,s:'一个安稳的中产，不折腾不焦虑'},
+  {t:3,s:'一个不断进化、持续成长的高手'},
+  {t:4,s:'一个掌控局面的老板，有团队有系统'},
+  {t:5,s:'一个技术领域的顶级专家，不可替代'},
+  {t:6,s:'一个踩准了每波趋势的猎人，身家翻了几番'}
+]}
+];
+
+// ===== FULL QUESTIONS (20) =====
+const QF = [
+{q:'朋友说"有个稳赚不赔的项目"，你第一反应是？',o:[
+  {t:1,s:'稳赚不赔？我不信，但我信自己能判断'},{t:2,s:'稳赚？那说明风险被藏起来了，我不碰'},
+  {t:3,s:'先搞清楚他凭什么说稳赚，我需要信息做决策'},{t:4,s:'稳赚不赔的项目——我想搞清楚赚的是谁的钱'},
+  {t:5,s:'我不关心稳不稳，我只关心技术门槛够不够高'},{t:6,s:'稳赚？那窗口期一定很短，我先上了再说'}
+]},
+{q:'你对"钱"最真实的感受是？',o:[
+  {t:1,s:'钱是放大我影响力的工具，不是目的'},{t:2,s:'钱是安全感，有存款我才有底气'},
+  {t:3,s:'钱是成长的燃料，花出去要能带回来更多'},{t:4,s:'钱是做局的本钱，小钱做小局，大钱做大局'},
+  {t:5,s:'钱是价值交换的凭证，我卖技术它买单'},{t:6,s:'钱是风口的度量衡，哪个赛道钱涌得多我就往哪看'}
+]},
+{q:'你每月收入到账后的第一笔支出通常是？',o:[
+  {t:1,s:'投入到自己的自媒体账号或个人项目'},{t:2,s:'还房贷/车贷/信用卡，先把固定支出清掉'},
+  {t:3,s:'买书、报课、约导师吃饭——投资自己'},{t:4,s:'拨一部分给团队的运营经费'},
+  {t:5,s:'更新工具链或升级开发环境'},{t:6,s:'留一部分做下一个机会的启动资金'}
+]},
+{q:'你最认同哪句话？',o:[
+  {t:1,s:'"一个人就是一支队伍"'},{t:2,s:'"稳稳当当就是福"'},
+  {t:3,s:'"今天打工是为了明天不打工"'},{t:4,s:'"让更多的人为我赚钱"'},
+  {t:5,s:'"不可替代才是真价值"'},{t:6,s:'"站在风口上，猪都能飞"'}
+]},
+{q:'你如何看待"副业"？',o:[
+  {t:1,s:'我没有副业，我的主业就是我自己'},{t:2,s:'偶尔搞搞可以，但不能影响正职稳定'},
+  {t:3,s:'副业是转型的试验田，打工之余必须试'},{t:4,s:'副业？那是小生意，我要的是正业'},
+  {t:5,s:'副业必须跟我的技术栈相关，否则浪费时间'},{t:6,s:'哪个赛道热我就搞哪个副业，快进快出'}
+]},
+{q:'你的消费习惯更接近哪种？',o:[
+  {t:1,s:'花钱是为了打造个人品牌形象'},{t:2,s:'消费有预算，超了就焦虑'},
+  {t:3,s:'买的东西大概率是课程或会员'},{t:4,s:'花钱请人帮我干活，时间比钱贵'},
+  {t:5,s:'花钱买设备、买工具、买效率'},{t:6,s:'花钱是为了快速试错，试对了就赚回来'}
+]},
+{q:'面临职业选择时，你最看重什么？',o:[
+  {t:1,s:'能否持续打造我自己的品牌和话语权'},{t:2,s:'稳定性和福利待遇'},
+  {t:3,s:'能学到新东西、接触到新圈子'},{t:4,s:'能否搭建自己的团队和商业体系'},
+  {t:5,s:'能否用上并深化我的技术专长'},{t:6,s:'这条路是不是当下最热的风口'}
+]},
+{q:'你做事失败后的反应？',o:[
+  {t:1,s:'分析为什么我的IP没打动人，调整策略再发'},{t:2,s:'失败了就回安全区，下次不碰了'},
+  {t:3,s:'失败就是学费，复盘后找下一个成长机会'},{t:4,s:'失败说明我的局没搭好，换人换策略再来'},
+  {t:5,s:'失败说明技术方案有缺陷，回去查bug'},{t:6,s:'这条路不行就换一条，反正风口多的是'}
+]},
+{q:'你对"加班"的态度？',o:[
+  {t:1,s:'加班是为了给自己干活，给老板加班我不干'},{t:2,s:'公司安排的加班，该加就加，别出事就行'},
+  {t:3,s:'加班可以，但我要能看到成长曲线才行'},{t:4,s:'让员工加班不如优化流程，加班不等于产出'},
+  {t:5,s:'只有需要攻克技术难关时才加班，否则划水'},{t:6,s:'加班赶风口窗口期，过了这阵就不加了'}
+]},
+{q:'面对一个你不熟悉的领域，你如何开始？',o:[
+  {t:1,s:'先看看我能不能用个人品牌切入这个领域'},{t:2,s:'先找个靠谱的入门课，稳稳地从基础学'},
+  {t:3,s:'找到这个领域里最厉害的人，跟他学'},{t:4,s:'先找人，能不能搭个团队一起做'},
+  {t:5,s:'先看技术门槛——我能用现有技能迁移吗'},{t:6,s:'先看这个领域是不是在起风，有风就直接冲'}
+]},
+{q:'有人让你"等一等"，你心里怎么想？',o:[
+  {t:1,s:'等什么？我的内容规划已经排好了'},{t:2,s:'等一等也好，稳妥一点'},
+  {t:3,s:'等的过程我正好去学点新东西'},{t:4,s:'等的时间我用来搭班子、定规则'},
+  {t:5,s:'等是浪费技术迭代周期，我不等'},{t:6,s:'等就是错过窗口，窗口不会等人'}
+]},
+{q:'你做一件事最原始的驱动力是？',o:[
+  {t:1,s:'证明我自己的观点和方法是对的'},{t:2,s:'按部就班完成任务，不出差错'},
+  {t:3,s:'每做完一件事都觉得自己又进化了一点'},{t:4,s:'看着一群人帮我做事，系统自动运转'},
+  {t:5,s:'用技术解决一个别人解决不了的问题'},{t:6,s:'逮住一个别人还没看见的机会'}
+]},
+{q:'你选工作/项目的标准是？',o:[
+  {t:1,s:'能放大我的个人影响力'},{t:2,s:'公司靠谱、待遇稳定'},
+  {t:3,s:'能让我接触更厉害的人和更前沿的事'},{t:4,s:'能让我搭建和指挥一个体系'},
+  {t:5,s:'能让我发挥技术深度，攻克难题'},{t:6,s:'这个赛道正在爆发，进去了就赢'}
+]},
+{q:'你愿意帮别人时，心里想的是？',o:[
+  {t:1,s:'这次帮忙能出内容、涨粉丝、刷影响力'},{t:2,s:'帮了人家也帮了我，维持关系很重要'},
+  {t:3,s:'帮他的时候我也能学东西'},{t:4,s:'这个人以后可以帮我干活'},
+  {t:5,s:'帮他解决技术难题，我的手艺也更精'},{t:6,s:'帮他就是互留人情，下次风口他可能带我'}
+]},
+{q:'你和同事/同行闹矛盾了，你怎么处理？',o:[
+  {t:1,s:'公开表达我的立场，让粉丝知道我的态度'},{t:2,s:'忍让为主，不伤和气最重要'},
+  {t:3,s:'从冲突里找成长点，看自己哪里可以更强'},{t:4,s:'看这人的位置，能用就用，不能用就换'},
+  {t:5,s:'技术上谁对听谁的，不掺杂个人情绪'},{t:6,s:'不浪费时间内耗，这个赛道不适合就换赛道'}
+]},
+{q:'你怎么看待"被淘汰"？',o:[
+  {t:1,s:'IP过时了——那就换个赛道继续输出'},{t:2,s:'被裁员就找下一个稳定岗位，总有地方要我'},
+  {t:3,s:'被淘汰说明我成长不够快，得加速了'},{t:4,s:'被淘汰说明我的局没搭稳，换个赛道重新搭'},
+  {t:5,s:'被淘汰说明技术不够硬，回去练手艺'},{t:6,s:'被淘汰说明这个赛道不行了，赶紧换'}
+]},
+{q:'你理想中的财务状态是？',o:[
+  {t:1,s:'有持续的自媒体收入和IP授权收入'},{t:2,s:'有稳定的工资+理财收益，不焦虑'},
+  {t:3,s:'有持续上涨的收入曲线和学习投入空间'},{t:4,s:'有自己运转的业务系统和稳定的现金流'},
+  {t:5,s:'有高端技术项目的长期合约和顾问费'},{t:6,s:'有灵活的启动资金，随时能追下一个风口'}
+]},
+{q:'你对"打工"终极的看法是？',o:[
+  {t:1,s:'打工是给自己积累IP素材和流量，最终要独立'},{t:2,s:'打工就是打工，别想太多'},
+  {t:3,s:'打工是进阶的通道，学完就走'},{t:4,s:'打工是观察别人搭局的窗口，我要学怎么搭'},
+  {t:5,s:'打工是用技术换饭票，但我的技术比岗位值钱'},{t:6,s:'打工是等风来的安全区，风来了就撤'}
+]},
+{q:'你最不愿接受哪种人生？',o:[
+  {t:1,s:'被平台封杀、被公司控制话语权'},{t:2,s:'朝不保夕、随时可能失业'},
+  {t:3,s:'停滞不前、没有成长通道'},{t:4,s:'被别人指挥、没有搭局的权力'},
+  {t:5,s:'技术被淘汰、被AI或新人替代'},{t:6,s:'错过风口、在慢赛道里耗死'}
+]},
+{q:'如果给你一个标签，你最不反感的是？',o:[
+  {t:1,s:'"独立品牌"'},{t:2,s:'"稳定靠谱"'},
+  {t:3,s:'"持续进化"'},{t:4,s:'"做局者"'},
+  {t:5,s:'"技术硬核"'},{t:6,s:'"风口猎手"'}
+]}
+];
+
+// ===== STATE =====
+let mode='';
+let questions=[];
+let totalQ=0;
+let currentQ=0;
+let answers=[];
+let scores=[0,0,0,0,0,0];
+
+function showChoice(){
+  document.getElementById('coverPage').style.display='none';
+  document.getElementById('choicePage').classList.add('active');
+}
+
+function startTest(m){
+  mode=m;
+  questions=m==='light'?QL:QF;
+  totalQ=questions.length;
+  currentQ=0;
+  answers=new Array(totalQ).fill(-1);
+  scores=[0,0,0,0,0,0];
+  document.getElementById('choicePage').classList.remove('active');
+  document.getElementById('qPage').classList.add('active');
+  document.getElementById('qMode').textContent=m==='light'?'轻交付版':'结果交付版';
+  renderQ();
+}
+
+function renderQ(){
+  var q=questions[currentQ];
+  document.getElementById('qNum').textContent='Q'+(currentQ+1)+' / '+totalQ;
+  document.getElementById('progressFill').style.width=(currentQ/totalQ*100)+'%';
+  document.getElementById('qText').textContent=q.q;
+  var h='';
+  for(var i=0;i<q.o.length;i++){
+    var o=q.o[i];
+    var sel=answers[currentQ]===i?' selected':'';
+    h+='<div class="opt-item'+sel+'" onclick="selectOpt('+i+')"><span class="opt-label">'+L[i]+'</span><span class="opt-text">'+o.s+'</span></div>';
+  }
+  document.getElementById('optList').innerHTML=h;
+  document.getElementById('btnPrev').style.visibility=currentQ>0?'visible':'hidden';
+  var last=currentQ===totalQ-1;
+  document.getElementById('btnNext').textContent=last?'查看结果':'下一题';
+}
+
+function selectOpt(idx){
+  answers[currentQ]=idx;
+  var items=document.querySelectorAll('.opt-item');
+  for(var i=0;i<items.length;i++) items[i].classList.toggle('selected',i===idx);
+}
+
+function nextQ(){
+  if(answers[currentQ]===-1){alert('请先选择一个选项！');return;}
+  if(currentQ<totalQ-1){currentQ++;renderQ();window.scrollTo({top:0,behavior:'instant'});}
+  else showResult();
+}
+
+function prevQ(){
+  if(currentQ>0){currentQ--;renderQ();window.scrollTo({top:0,behavior:'instant'});}
+}
+
+function calcScore(){
+  scores=[0,0,0,0,0,0];
+  for(var i=0;i<totalQ;i++){
+    if(answers[i]>=0) scores[questions[i].o[answers[i]].t-1]++;
+  }
+  return scores;
+}
+
+function showResult(){
+  calcScore();
+  document.getElementById('qPage').classList.remove('active');
+  document.getElementById('resultPage').classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+
+  var ranked=scores.map(function(s,i){return {s:s,i:i,t:TYPES[i]};}).sort(function(a,b){return b.s-a.s;});
+  var top=ranked[0];
+  var pct=Math.round(top.s/totalQ*100);
+  var sec=ranked[1];
+  var t=top.t;
+  var c=t.color;
+
+  var h='';
+
+  /* ===== Panel 1: 测试结果 ===== */
+  h+='<div class="result-header">';
+  h+='<div class="result-label">'+(mode==='light'?'轻交付版':'结果交付版')+' · 测试结果</div>';
+  h+='<div class="result-type-name" style="color:'+c+'">'+t.name+'</div>';
+  h+='<div class="result-type-tagline">'+t.tagline+'</div>';
+  h+='</div>';
+
+  h+='<div class="result-score-ring" style="border-color:'+c+'"><div class="score-num" style="color:'+c+'">'+pct+'</div><div class="score-pct">契合度</div></div>';
+
+  /* ===== Panel 2: 核心性格特征 ===== */
+  h+='<div class="result-panel highlight">';
+  h+='<div class="panel-title"><span class="panel-number">2</span>核心性格特征</div>';
+  h+='<div class="panel-content">'+t.personality+'</div>';
+  h+='</div>';
+
+  /* ===== Panel 3: 财富优势 ===== */
+  h+='<div class="result-panel">';
+  h+='<div class="panel-title"><span class="panel-number">3</span>财富优势</div>';
+  h+='<ul class="panel-list good">';
+  for(var i=0;i<t.strengths.length;i++){
+    h+='<li>'+t.strengths[i]+'</li>';
+  }
+  h+='</ul></div>';
+
+  /* ===== Panel 4: 结果短板 ===== */
+  h+='<div class="result-panel">';
+  h+='<div class="panel-title"><span class="panel-number">4</span>结果短板</div>';
+  h+='<ul class="panel-list bad">';
+  for(var i=0;i<t.weaknesses.length;i++){
+    h+='<li>'+t.weaknesses[i]+'</li>';
+  }
+  h+='</ul></div>';
+
+  /* ===== Panel 5: 最适合赚钱的方式 ===== */
+  h+='<div class="result-panel highlight">';
+  h+='<div class="panel-title"><span class="panel-number">5</span>最适合赚钱的方式</div>';
+  h+='<div class="panel-content">'+t.bestWay+'</div>';
+  h+='</div>';
+
+  /* ===== Panel 6: 不建议选择的方向 ===== */
+  h+='<div class="result-panel">';
+  h+='<div class="panel-title"><span class="panel-number">6</span>不建议选择的方向</div>';
+  h+='<ul class="panel-list bad">';
+  for(var i=0;i<t.avoidWay.length;i++){
+    h+='<li>'+t.avoidWay[i]+'</li>';
+  }
+  h+='</ul></div>';
+
+  /* ===== Panel 7: 行动指南 ===== */
+  h+='<div class="result-panel highlight">';
+  h+='<div class="panel-title"><span class="panel-number">7</span>行动指南</div>';
+  h+='<ul class="panel-list advice">';
+  for(var i=0;i<t.actionPlan.length;i++){
+    h+='<li>'+t.actionPlan[i]+'</li>';
+  }
+  h+='</ul></div>';
+
+  /* ===== Panel 8: 送一句话 ===== */
+  h+='<div class="result-panel highlight">';
+  h+='<div class="panel-title"><span class="panel-number">8</span>送他一句话</div>';
+  h+='</div>';
+  h+='<div class="quote-box">';
+  h+='<div class="quote-icon">💎</div>';
+  h+='<div class="quote-text" style="color:'+c+'">'+t.quote+'</div>';
+  h+='</div>';
+
+  /* ===== 六维分布 (small) ===== */
+  h+='<div class="result-panel">';
+  h+='<div class="panel-title"><span class="panel-number" style="background:rgba(255,255,255,.08);color:#aaa">+</span>六维分布图</div>';
+  h+='<div class="dims-grid">';
+  for(var i=0;i<6;i++){
+    var bp=Math.round(scores[i]/totalQ*100);
+    h+='<div class="dim-item"><span class="dim-label">'+TYPES[i].name+'</span><div class="dim-bar"><div class="dim-fill" style="width:'+bp+'%;background:'+TYPES[i].color+'"></div></div><span class="dim-pct" style="color:'+TYPES[i].color+'">'+bp+'%</span></div>';
+  }
+  h+='</div></div>';
+
+  document.getElementById('resultContent').innerHTML=h;
+}
+
+function goHome(){
+  document.getElementById('resultPage').classList.remove('active');
+  document.getElementById('choicePage').classList.add('active');
+}
+</script>
+</body>
+</html>
